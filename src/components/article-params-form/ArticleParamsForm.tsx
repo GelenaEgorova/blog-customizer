@@ -1,6 +1,7 @@
 import { ArrowButton } from 'components/arrow-button';
 import { Button } from 'components/button';
 import React, { useState, useRef, useEffect } from 'react';
+import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
 import { RadioGroup } from '../radio-group';
 import { Text } from 'components/text';
@@ -21,22 +22,23 @@ export type ArticleParamsFormProps = {
 };
 
 export const ArticleParamsForm = ({ appState }: ArticleParamsFormProps) => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [form, setForm] = useState(defaultArticleState);
 	const formRef = useRef<HTMLDivElement>(null);
 	const handleClickForm = () => {
-		setIsOpen(!isOpen);
+		setIsMenuOpen(!isMenuOpen);
 	};
 	useEffect(() => {
+		if (!isMenuOpen) return;
 		const handleClickOutside = (event: MouseEvent) => {
 			if (formRef.current && !formRef.current.contains(event.target as Node)) {
-				setIsOpen(false);
+				setIsMenuOpen(false);
 			}
 		};
 
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, []);
+	}, [isMenuOpen]);
 
 	const handleChange = (name: string, value: OptionType) => {
 		setForm((prev) => ({ ...prev, [name]: value }));
@@ -54,17 +56,17 @@ export const ArticleParamsForm = ({ appState }: ArticleParamsFormProps) => {
 	const handleReset = () => {
 		setForm(defaultArticleState);
 		appState(defaultArticleState);
-		setIsOpen(false);
+		setIsMenuOpen(false);
 	};
 
 	return (
 		<>
-			<ArrowButton onClick={handleClickForm} isOpen={isOpen} />
+			<ArrowButton onClick={handleClickForm} isOpen={isMenuOpen} />
 			<aside
 				ref={formRef}
-				className={`${styles.container} ${
-					isOpen ? styles.container_open : ''
-				}`}>
+				className={clsx(styles.container, {
+					[styles.container_open]: isMenuOpen,
+				})}>
 				<form className={styles.form} onSubmit={handleSubmit}>
 					<Text uppercase={true} weight={800} size={31}>
 						Задайте параметры
